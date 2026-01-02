@@ -17,7 +17,9 @@ export default function App() {
   useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash || '#/settings';
-      if (window.location.hash === '') window.location.hash = '#/settings';
+      if (window.location.hash === '') {
+        window.location.hash = '#/settings';
+      }
       setCurrentPath(hash);
     };
     handleHashChange();
@@ -32,8 +34,10 @@ export default function App() {
   const renderContent = () => {
     const path = currentPath.replace('#', '');
     
-    // Exact Matches
+    // Settings Root
     if (path === '/settings') return <Settings onNavigate={navigate} />;
+    
+    // Settings Sub-pages
     if (path === '/settings/dictionaries') return <Dictionaries onNavigate={navigate} />;
     if (path === '/settings/company') return <CompanySetup />;
     if (path === '/settings/stores') return <Stores onNavigate={navigate} />;
@@ -42,11 +46,11 @@ export default function App() {
     if (path === '/settings/advanced') return <div className="p-8 text-slate-500">Advanced Settings - Under Construction</div>;
     if (path === '/settings/subscription') return <div className="p-8 text-slate-500">Subscription & Billing - Under Construction</div>;
 
-    // Dynamic Matches
+    // Store Hierarchy
     if (path.startsWith('/settings/stores/')) return <StoreDetail onNavigate={navigate} />;
     if (path.startsWith('/settings/dining/')) return <DiningArea />;
 
-    // Dictionary Sub-pages
+    // Dictionaries Hierarchy
     if (path === '/settings/units') return <UnitsPage />;
     if (path === '/settings/taxes') return <GenericGridPage title="Taxes" type="tax" />;
     if (path === '/settings/currencies') return <GenericGridPage title="Currencies" type="currency" />;
@@ -58,7 +62,7 @@ export default function App() {
     if (path === '/settings/reasons') return <GenericGridPage title="Action Reasons" type="reason" />;
     if (path === '/settings/expenses') return <GenericGridPage title="Expense Types" type="expense" />;
 
-    // Main Sections
+    // Other Main Tabs
     if (path === '/customers') return <CustomersPage />;
     
     return <div className="flex items-center justify-center h-64 text-slate-400">Page under construction: {path}</div>;
@@ -66,9 +70,10 @@ export default function App() {
 
   const getPageTitle = () => {
      const path = currentPath.replace('#', '');
-     if (path === '/settings') return 'Settings';
-     if (path.includes('customers')) return 'Customers';
-     return 'Management';
+     if (path.startsWith('/settings')) return 'Settings';
+     if (path.startsWith('/customers')) return 'Customers';
+     if (path.startsWith('/dashboard')) return 'Dashboard';
+     return 'Settings';
   };
 
   const getBreadcrumbs = () => {
@@ -84,19 +89,21 @@ export default function App() {
       currentLink += `/${seg}`;
       
       let label = seg.charAt(0).toUpperCase() + seg.slice(1);
+      
+      // Custom Label Mapping
       if (seg === 'company') label = 'Company & Setup';
-      if (seg === 'stores' && i === segments.length - 1) label = 'Stores & Locations';
+      if (seg === 'stores') label = 'Stores & Locations';
       if (seg === 'payments') label = 'Payment Methods';
       if (seg === 'dictionaries') label = 'Dictionaries';
+      if (seg === 'advanced') label = 'Advanced Settings';
+      if (seg === 'subscription') label = 'Subscription & Billing';
       
-      // If the next segment is a number (ID), we skip adding a crumb for it or rename the current one
+      // ID handling
       if (segments[i+1] && !isNaN(Number(segments[i+1]))) {
-        // Special case for store detail
         if (seg === 'stores') {
           crumbs.push({ label: 'Stores & Locations', path: '#/settings/stores' });
           crumbs.push({ label: 'Store 1', path: undefined });
-          i++; // Skip the ID segment
-          continue;
+          i++; continue;
         }
       }
 
