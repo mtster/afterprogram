@@ -7,6 +7,11 @@ export function useSupabaseTable<T>(tableName: string) {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!tableName) {
+      setLoading(false);
+      return;
+    }
+
     async function fetchData() {
       try {
         setLoading(true);
@@ -15,10 +20,12 @@ export function useSupabaseTable<T>(tableName: string) {
           .select('*');
         
         if (fetchError) throw fetchError;
-        setData(result || []);
+        // Ensure result is an array
+        setData(Array.isArray(result) ? result : []);
       } catch (e: any) {
         console.error(`Error fetching from ${tableName}:`, e.message);
         setError(e.message);
+        setData([]); 
       } finally {
         setLoading(false);
       }

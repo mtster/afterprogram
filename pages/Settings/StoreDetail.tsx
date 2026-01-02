@@ -10,7 +10,7 @@ export const StoreDetail: React.FC<{ onNavigate: (path: string) => void }> = ({ 
 
   // Fetch Price Types from DB
   const { data: priceTypes, loading: loadingPrices } = useSupabaseTable<any>('directories_price_types');
-  const priceTypeOptions = priceTypes.map(pt => ({ label: pt.name, value: pt.id }));
+  const priceTypeOptions = (priceTypes || []).map(pt => ({ label: pt.name, value: pt.id }));
   const defaultPriceOptions = priceTypeOptions.length > 0 ? priceTypeOptions : [{label: 'Loading...', value: ''}];
 
   const menus = ['Menu1', 'Menu', 'Menu3', 'Menu2', 'Menu7'];

@@ -16,7 +16,7 @@ export const UnitsPage: React.FC = () => {
     { id: '15', name: 'Port', shortName: 'Portion', category: 'Custom' },
   ]);
 
-  const unitGroupOptions = unitGroups.map(g => ({ label: g.name, value: g.id }));
+  const unitGroupOptions = (unitGroups || []).map(g => ({ label: g.name, value: g.id }));
 
   const renderSection = (title: string, category: string) => {
     const categoryUnits = units.filter(u => u.category === category);

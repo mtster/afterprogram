@@ -29,6 +29,11 @@ export const GenericGridPage: React.FC<GenericGridProps> = ({ title, type }) => 
       case 'price': return 'directories_price_types';
       case 'language': return 'directories_languages';
       case 'tax': return 'directories_vat_taxes';
+      case 'kitchen': return 'directories_kitchen_stations';
+      case 'discount': return 'directories_discounts';
+      case 'delivery': return 'directories_delivery_types';
+      case 'reason': return 'directories_action_reasons';
+      case 'expense': return 'directories_expense_types';
       default: return '';
     }
   };
@@ -42,13 +47,13 @@ export const GenericGridPage: React.FC<GenericGridProps> = ({ title, type }) => 
 
   // 3. Transform DB data into View Data
   const getDisplayItems = (): GenericItem[] => {
-    if (!dbItems) return [];
+    if (!dbItems || !Array.isArray(dbItems)) return [];
     
     return dbItems.map(item => {
         if (type === 'currency') {
             // Join with master currency logic manually or assume mapped
             // For simplicity, we try to find the match in masterCurrencies if available
-            const master = masterCurrencies.find(c => c.id === item.base_currency_id);
+            const master = (masterCurrencies || []).find(c => c.id === item.base_currency_id);
             return {
                 id: item.id,
                 primary: master ? master.symbol : '?',
@@ -98,6 +103,10 @@ export const GenericGridPage: React.FC<GenericGridProps> = ({ title, type }) => 
             payload.is_enabled = true;
         } else if (type === 'language') {
              payload.base_language_id = newItemData.base_language_id;
+        } else {
+             // Default name handling
+             if (!newItemData.name) throw new Error("Enter a name");
+             payload.name = newItemData.name;
         }
 
         const { error: saveError } = await supabase
@@ -118,7 +127,7 @@ export const GenericGridPage: React.FC<GenericGridProps> = ({ title, type }) => 
 
   const renderNewItemForm = () => {
     if (type === 'currency') {
-      const options = masterCurrencies.map(c => ({ label: `${c.symbol} - ${c.name}`, value: c.id }));
+      const options = (masterCurrencies || []).map(c => ({ label: `${c.symbol} - ${c.name}`, value: c.id }));
       return (
         <div className="space-y-4">
           <Select 
@@ -131,7 +140,7 @@ export const GenericGridPage: React.FC<GenericGridProps> = ({ title, type }) => 
       );
     }
     if (type === 'language') {
-      const options = masterLanguages.map(l => ({ label: `${l.name} (${l.code})`, value: l.id }));
+      const options = (masterLanguages || []).map(l => ({ label: `${l.name} (${l.code})`, value: l.id }));
       return (
         <div className="space-y-4">
           <Select 
