@@ -36,9 +36,10 @@ export default function App() {
 
   const renderContent = () => {
     const path = currentPath.replace('#', '');
+    const cleanPath = path.replace(/\/$/, ''); // Remove trailing slash
     
     // Settings Root (Handle / and /settings)
-    if (path === '/' || path === '' || path === '/settings') return <Settings onNavigate={navigate} />;
+    if (cleanPath === '' || cleanPath === '/' || cleanPath === '/settings') return <Settings onNavigate={navigate} />;
     
     // Settings Sub-pages
     if (path === '/settings/dictionaries') return <Dictionaries onNavigate={navigate} />;
