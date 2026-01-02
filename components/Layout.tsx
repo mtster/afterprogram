@@ -10,7 +10,7 @@ const NAV_ITEMS: NavigationItem[] = [
   { name: 'Items', icon: Icons.Items, path: '#/items' },
   { name: 'Loyalty', icon: Icons.Loyalty, path: '#/loyalty' },
   { name: 'Reports', icon: Icons.Reports, path: '#/reports' },
-  { name: 'Settings', icon: Icons.Settings, path: '#/' },
+  { name: 'Settings', icon: Icons.Settings, path: '#/settings' },
 ];
 
 interface LayoutProps {

@@ -7,6 +7,9 @@ import { Stores } from './pages/Settings/Stores';
 import { StoreDetail } from './pages/Settings/StoreDetail';
 import { DiningArea } from './pages/Settings/DiningArea';
 import { PaymentMethods } from './pages/Settings/PaymentMethods';
+import { UserManagement } from './pages/Settings/UserManagement';
+import { AdvancedSettings } from './pages/Settings/AdvancedSettings';
+import { Subscription } from './pages/Settings/Subscription';
 import { UnitsPage } from './pages/Units';
 import { GenericGridPage } from './pages/GenericGrid';
 import { CustomersPage } from './pages/Customers';
@@ -34,17 +37,17 @@ export default function App() {
   const renderContent = () => {
     const path = currentPath.replace('#', '');
     
-    // Settings Root
-    if (path === '/settings') return <Settings onNavigate={navigate} />;
+    // Settings Root (Handle / and /settings)
+    if (path === '/' || path === '' || path === '/settings') return <Settings onNavigate={navigate} />;
     
     // Settings Sub-pages
     if (path === '/settings/dictionaries') return <Dictionaries onNavigate={navigate} />;
     if (path === '/settings/company') return <CompanySetup />;
     if (path === '/settings/stores') return <Stores onNavigate={navigate} />;
     if (path === '/settings/payments') return <PaymentMethods />;
-    if (path === '/settings/users') return <div className="p-8 text-slate-500">User Management - Under Construction</div>;
-    if (path === '/settings/advanced') return <div className="p-8 text-slate-500">Advanced Settings - Under Construction</div>;
-    if (path === '/settings/subscription') return <div className="p-8 text-slate-500">Subscription & Billing - Under Construction</div>;
+    if (path === '/settings/users') return <UserManagement />;
+    if (path === '/settings/advanced') return <AdvancedSettings />;
+    if (path === '/settings/subscription') return <Subscription />;
 
     // Store Hierarchy
     if (path.startsWith('/settings/stores/')) return <StoreDetail onNavigate={navigate} />;
@@ -64,13 +67,14 @@ export default function App() {
 
     // Other Main Tabs
     if (path === '/customers') return <CustomersPage />;
+    if (path === '/dashboard') return <div className="p-8 text-center text-slate-500">Dashboard - Under Construction</div>;
     
     return <div className="flex items-center justify-center h-64 text-slate-400">Page under construction: {path}</div>;
   };
 
   const getPageTitle = () => {
      const path = currentPath.replace('#', '');
-     if (path.startsWith('/settings')) return 'Settings';
+     if (path === '/' || path === '' || path.startsWith('/settings')) return 'Settings';
      if (path.startsWith('/customers')) return 'Customers';
      if (path.startsWith('/dashboard')) return 'Dashboard';
      return 'Settings';
@@ -78,7 +82,7 @@ export default function App() {
 
   const getBreadcrumbs = () => {
     const path = currentPath.replace('#', '');
-    if (path === '/settings') return [];
+    if (path === '/' || path === '' || path === '/settings') return [];
 
     const segments = path.split('/').filter(Boolean);
     const crumbs = [];
@@ -97,6 +101,7 @@ export default function App() {
       if (seg === 'dictionaries') label = 'Dictionaries';
       if (seg === 'advanced') label = 'Advanced Settings';
       if (seg === 'subscription') label = 'Subscription & Billing';
+      if (seg === 'users') label = 'User Management';
       
       // ID handling
       if (segments[i+1] && !isNaN(Number(segments[i+1]))) {
