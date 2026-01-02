@@ -27,7 +27,24 @@ import {
   Shapes,
   Scale,
   Ruler,
-  Menu
+  Menu,
+  Building2,
+  Store,
+  CreditCard,
+  Users,
+  BookOpen,
+  Cpu,
+  Receipt,
+  ArrowLeft,
+  Circle,
+  Square,
+  Pentagon,
+  Image as ImageIcon,
+  Map,
+  Maximize2,
+  Warehouse,
+  Printer,
+  Smartphone
 } from 'lucide-react';
 
 export const Icons = {
@@ -58,5 +75,22 @@ export const Icons = {
   Expense: Shapes,
   Weight: Scale,
   Ruler: Ruler,
-  Menu: Menu
+  Menu: Menu,
+  Company: Building2,
+  Store: Store,
+  Payment: CreditCard,
+  UserManagement: Users,
+  Dictionaries: BookOpen,
+  Advanced: Cpu,
+  Billing: Receipt,
+  Back: ArrowLeft,
+  Circle: Circle,
+  Square: Square,
+  Polygon: Pentagon,
+  Image: ImageIcon,
+  Map: Map,
+  Table: Maximize2,
+  Warehouse: Warehouse,
+  Printer: Printer,
+  Display: Smartphone
 };

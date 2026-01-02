@@ -26,6 +26,9 @@
                 800: '#5b21b6',
                 900: '#4c1d95',
               }
+            },
+            backgroundImage: {
+              'primary-gradient': 'linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%)',
             }
           }
         }
@@ -50,6 +53,13 @@
       ::-webkit-scrollbar-thumb:hover {
         background: #94a3b8;
       }
+      .btn-gradient {
+        background: linear-gradient(135deg, #8b5cf6 0%, #d946ef 100%);
+        color: white;
+      }
+      .btn-gradient:hover {
+        opacity: 0.9;
+      }
     </style>
     <script type="importmap">
 {
@@ -61,7 +71,8 @@
     "lucide-react": "https://esm.sh/lucide-react@0.460.0",
     "firebase/app": "https://esm.sh/firebase@11.0.2/app",
     "firebase/firestore": "https://esm.sh/firebase@11.0.2/firestore",
-    "firebase/": "https://esm.sh/firebase@^12.7.0/"
+    "firebase/": "https://esm.sh/firebase@^12.7.0/",
+    "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2.39.3"
   }
 }
 </script>

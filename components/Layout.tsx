@@ -10,7 +10,7 @@ const NAV_ITEMS: NavigationItem[] = [
   { name: 'Items', icon: Icons.Items, path: '#/items' },
   { name: 'Loyalty', icon: Icons.Loyalty, path: '#/loyalty' },
   { name: 'Reports', icon: Icons.Reports, path: '#/reports' },
-  { name: 'Settings', icon: Icons.Settings, path: '#/' }, // Root defaults to settings based on screenshots
+  { name: 'Settings', icon: Icons.Settings, path: '#/' },
 ];
 
 interface LayoutProps {
@@ -23,6 +23,9 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, currentPath, onNavigate, title, breadcrumbs }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const path = currentPath.replace('#', '');
+  // Hide global search on specific pages like the main Settings dashboard
+  const showGlobalSearch = path !== '/' && path !== '/settings' && !path.startsWith('/settings');
 
   return (
     <div className="flex h-screen bg-slate-50 overflow-hidden font-sans text-slate-800">
@@ -42,11 +45,9 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath, onNavigat
 
         <nav className="p-4 space-y-1">
           {NAV_ITEMS.map((item) => {
-            const isActive = currentPath === item.path || (item.path === '#/' && currentPath === '') || (item.path === '#/' && currentPath.startsWith('#/settings'));
-            // Special case: if we are in a sub-route of settings (e.g. #/settings/units), Settings should be active.
-            const isSettingsActive = item.name === 'Settings' && currentPath.includes('settings');
+            const isActive = currentPath === item.path || (item.path === '#/' && (currentPath === '' || currentPath === '#/settings' || currentPath.startsWith('#/settings')));
 
-            const activeClass = (isActive || isSettingsActive) 
+            const activeClass = isActive 
               ? 'bg-primary-600/10 text-primary-400 border-r-2 border-primary-500' 
               : 'hover:bg-slate-800 hover:text-white border-r-2 border-transparent';
 
@@ -72,7 +73,7 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath, onNavigat
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Header */}
-        <header className="h-16 bg-[#1a1c2e] md:bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8">
+        <header className="h-16 bg-[#1a1c2e] md:bg-white border-b border-slate-200 flex items-center justify-between px-4 md:px-8 shrink-0">
           <div className="flex items-center gap-4">
             <button 
               className="md:hidden text-white md:text-slate-600"
@@ -84,11 +85,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath, onNavigat
             <div className="hidden md:flex items-center text-sm font-medium text-slate-500">
                {breadcrumbs && breadcrumbs.length > 0 ? (
                  <div className="flex items-center gap-2">
+                    <Icons.ChevronRight className="w-4 h-4 text-slate-400 -rotate-180 cursor-pointer" onClick={() => breadcrumbs[breadcrumbs.length - 2]?.path && onNavigate(breadcrumbs[breadcrumbs.length - 2].path!)} />
                     {breadcrumbs.map((crumb, idx) => (
                       <React.Fragment key={idx}>
                          {idx > 0 && <Icons.ChevronRight className="w-4 h-4 text-slate-400" />}
                          <span 
-                           className={idx === breadcrumbs.length - 1 ? 'text-slate-800 font-semibold' : 'cursor-pointer hover:text-primary-600'}
+                           className={idx === breadcrumbs.length - 1 ? 'text-slate-800 font-semibold' : 'cursor-pointer hover:text-primary-600 transition-colors'}
                            onClick={() => crumb.path && onNavigate(crumb.path)}
                          >
                            {crumb.label}
@@ -97,34 +99,35 @@ export const Layout: React.FC<LayoutProps> = ({ children, currentPath, onNavigat
                     ))}
                  </div>
                ) : (
-                 <span className="text-lg font-bold text-slate-800">{title}</span>
+                 <span className="text-lg font-bold text-slate-800 tracking-tight">{title}</span>
                )}
             </div>
             
-            {/* Mobile Title override */}
             <span className="md:hidden text-white font-semibold">{title}</span>
           </div>
 
           <div className="flex items-center gap-6">
-            <div className="hidden md:block relative w-64">
-              <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-              <input 
-                type="text" 
-                placeholder="Search..." 
-                className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all text-sm"
-              />
-            </div>
+            {showGlobalSearch && (
+              <div className="hidden lg:block relative w-64">
+                <Icons.Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+                <input 
+                  type="text" 
+                  placeholder="Search..." 
+                  className="w-full pl-10 pr-4 py-2 rounded-lg border border-slate-200 bg-slate-50 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary-100 transition-all text-sm"
+                />
+              </div>
+            )}
             <div className="flex items-center gap-4 text-slate-300 md:text-slate-600">
               <button className="relative hover:text-primary-600 transition-colors">
                 <Icons.Bell className="w-5 h-5" />
                 <span className="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
               </button>
               <div className="flex items-center gap-2 pl-4 border-l border-slate-200">
-                <div className="w-8 h-8 rounded-full bg-primary-100 text-primary-600 flex items-center justify-center font-bold text-xs">
-                  UN
+                <div className="w-8 h-8 rounded-full bg-primary-gradient text-white flex items-center justify-center font-bold text-xs shadow-sm">
+                  <Icons.User className="w-4 h-4" />
                 </div>
-                <span className="hidden md:block text-sm font-medium text-slate-700">Username</span>
-                <Icons.ChevronRight className="w-4 h-4 rotate-90 hidden md:block" />
+                <span className="hidden md:block text-sm font-semibold text-slate-700">Username</span>
+                <Icons.ChevronRight className="w-4 h-4 rotate-90 hidden md:block text-slate-400" />
               </div>
             </div>
           </div>
