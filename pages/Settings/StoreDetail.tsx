@@ -1,11 +1,17 @@
 import React, { useState } from 'react';
 import { Card, Button, Input, Select, Toggle, Modal } from '../../components/Shared';
 import { Icons } from '../../components/Icons';
+import { useSupabaseTable } from '../../hooks/useSupabaseData';
 
 export const StoreDetail: React.FC<{ onNavigate: (path: string) => void }> = ({ onNavigate }) => {
   const [isPosModalOpen, setIsPosModalOpen] = useState(false);
   const [posName, setPosName] = useState('New Sale Point 1');
   const [posEnabled, setPosEnabled] = useState(true);
+
+  // Fetch Price Types from DB
+  const { data: priceTypes, loading: loadingPrices } = useSupabaseTable<any>('directories_price_types');
+  const priceTypeOptions = priceTypes.map(pt => ({ label: pt.name, value: pt.id }));
+  const defaultPriceOptions = priceTypeOptions.length > 0 ? priceTypeOptions : [{label: 'Loading...', value: ''}];
 
   const menus = ['Menu1', 'Menu', 'Menu3', 'Menu2', 'Menu7'];
 
@@ -23,7 +29,10 @@ export const StoreDetail: React.FC<{ onNavigate: (path: string) => void }> = ({ 
         <Card className="grid grid-cols-2 gap-4">
           <Input label="Name" defaultValue="Main Store" />
           <Input label="Address" defaultValue="Address Str. 42" />
-          <Select label="Price Type" options={[{label: 'Retail', value: '1'}]} />
+          <Select 
+            label="Price Type" 
+            options={loadingPrices ? [{label: 'Loading...', value: ''}] : [{label: 'Select Price Type', value: ''}, ...priceTypeOptions]} 
+          />
           <Select label="Close Time" options={[{label: '19:00', value: '19:00'}]} />
           <div className="col-span-2 flex flex-col gap-4 pt-2">
             <Toggle label="Enable Table Service" checked={true} onChange={() => {}} />
@@ -90,7 +99,6 @@ export const StoreDetail: React.FC<{ onNavigate: (path: string) => void }> = ({ 
         <Button variant="danger" className="!bg-white !text-red-500 !border-red-100 !px-8" icon={<Icons.Delete className="w-4 h-4"/>}>Delete Item</Button>
       </div>
 
-      {/* Sale Point Modal (from img_0312.jpeg) */}
       <Modal 
         isOpen={isPosModalOpen} 
         onClose={() => setIsPosModalOpen(false)} 
