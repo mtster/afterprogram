@@ -16,8 +16,9 @@ export default function App() {
 
   useEffect(() => {
     const handleHashChange = () => {
-      const hash = window.location.hash;
-      setCurrentPath(hash || '#/settings');
+      const hash = window.location.hash || '#/settings';
+      if (window.location.hash === '') window.location.hash = '#/settings';
+      setCurrentPath(hash);
     };
     handleHashChange();
     window.addEventListener('hashchange', handleHashChange);
@@ -31,20 +32,21 @@ export default function App() {
   const renderContent = () => {
     const path = currentPath.replace('#', '');
     
-    // Settings Main
-    if (path === '/' || path === '' || path === '/settings') {
-      return <Settings onNavigate={navigate} />;
-    }
-    
-    // Settings Sub-pages
+    // Exact Matches
+    if (path === '/settings') return <Settings onNavigate={navigate} />;
     if (path === '/settings/dictionaries') return <Dictionaries onNavigate={navigate} />;
     if (path === '/settings/company') return <CompanySetup />;
     if (path === '/settings/stores') return <Stores onNavigate={navigate} />;
+    if (path === '/settings/payments') return <PaymentMethods />;
+    if (path === '/settings/users') return <div className="p-8 text-slate-500">User Management - Under Construction</div>;
+    if (path === '/settings/advanced') return <div className="p-8 text-slate-500">Advanced Settings - Under Construction</div>;
+    if (path === '/settings/subscription') return <div className="p-8 text-slate-500">Subscription & Billing - Under Construction</div>;
+
+    // Dynamic Matches
     if (path.startsWith('/settings/stores/')) return <StoreDetail onNavigate={navigate} />;
     if (path.startsWith('/settings/dining/')) return <DiningArea />;
-    if (path === '/settings/payments') return <PaymentMethods />;
 
-    // Dictionaries (nested under dictionaries in logic but routes remain top-level for simplicity)
+    // Dictionary Sub-pages
     if (path === '/settings/units') return <UnitsPage />;
     if (path === '/settings/taxes') return <GenericGridPage title="Taxes" type="tax" />;
     if (path === '/settings/currencies') return <GenericGridPage title="Currencies" type="currency" />;
@@ -56,7 +58,7 @@ export default function App() {
     if (path === '/settings/reasons') return <GenericGridPage title="Action Reasons" type="reason" />;
     if (path === '/settings/expenses') return <GenericGridPage title="Expense Types" type="expense" />;
 
-    // Other Tabs
+    // Main Sections
     if (path === '/customers') return <CustomersPage />;
     
     return <div className="flex items-center justify-center h-64 text-slate-400">Page under construction: {path}</div>;
@@ -64,43 +66,46 @@ export default function App() {
 
   const getPageTitle = () => {
      const path = currentPath.replace('#', '');
-     if (path === '/settings' || path === '/') return 'Settings';
-     if (path === '/settings/dictionaries') return 'Dictionaries';
-     if (path === '/settings/company') return 'Company & Setup';
-     if (path === '/settings/stores') return 'Stores & Locations';
-     if (path === '/settings/payments') return 'Payment Methods';
-     if (path.includes('units')) return 'Units';
+     if (path === '/settings') return 'Settings';
      if (path.includes('customers')) return 'Customers';
-     return 'Settings';
+     return 'Management';
   };
 
   const getBreadcrumbs = () => {
-     const path = currentPath.replace('#', '');
-     if (path === '/' || path === '/settings' || path === '') return [];
-     
-     const crumbs = [{ label: 'Settings', path: '#/' }];
-     
-     if (path.includes('dictionaries')) {
-       crumbs.push({ label: 'Dictionaries', path: undefined });
-     } else if (path.includes('company')) {
-       crumbs.push({ label: 'Company & Setup', path: undefined });
-     } else if (path.includes('stores')) {
-       crumbs.push({ label: 'Stores & Locations', path: undefined });
-     } else if (path.includes('dining')) {
-       crumbs.push({ label: 'Stores & Locations', path: '#/settings/stores' });
-       crumbs.push({ label: 'Store 1', path: '#/settings/stores/1' });
-       crumbs.push({ label: 'Dining Area', path: undefined });
-     } else if (path.includes('payments')) {
-       crumbs.push({ label: 'Payment Methods', path: undefined });
-     } else if (path === '/customers') {
-       return [{ label: 'Dashboard', path: '#/dashboard' }, { label: 'Customers', path: undefined }];
-     } else {
-       // Deep nested dictionaries
-       crumbs.push({ label: 'Dictionaries', path: '#/settings/dictionaries' });
-       crumbs.push({ label: path.split('/').pop()?.replace(/^\w/, c => c.toUpperCase()) || 'Page', path: undefined });
-     }
-     
-     return crumbs;
+    const path = currentPath.replace('#', '');
+    if (path === '/settings') return [];
+
+    const segments = path.split('/').filter(Boolean);
+    const crumbs = [];
+    
+    let currentLink = '#';
+    for (let i = 0; i < segments.length; i++) {
+      const seg = segments[i];
+      currentLink += `/${seg}`;
+      
+      let label = seg.charAt(0).toUpperCase() + seg.slice(1);
+      if (seg === 'company') label = 'Company & Setup';
+      if (seg === 'stores' && i === segments.length - 1) label = 'Stores & Locations';
+      if (seg === 'payments') label = 'Payment Methods';
+      if (seg === 'dictionaries') label = 'Dictionaries';
+      
+      // If the next segment is a number (ID), we skip adding a crumb for it or rename the current one
+      if (segments[i+1] && !isNaN(Number(segments[i+1]))) {
+        // Special case for store detail
+        if (seg === 'stores') {
+          crumbs.push({ label: 'Stores & Locations', path: '#/settings/stores' });
+          crumbs.push({ label: 'Store 1', path: undefined });
+          i++; // Skip the ID segment
+          continue;
+        }
+      }
+
+      crumbs.push({ 
+        label, 
+        path: i === segments.length - 1 ? undefined : currentLink 
+      });
+    }
+    return crumbs;
   };
 
   return (
